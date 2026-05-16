@@ -1,1 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
 @import 'tailwindcss';
+
+
+html,
+body {
+  font-family: 'Koulen', sans-serif;
+  font-size: 16px;
+}
+
+:root {
+    font-family: 'Koulen', sans-serif;
+    font-size: 16px;
+}
