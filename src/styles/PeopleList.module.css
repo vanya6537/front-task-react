@@ -1,0 +1,35 @@
+.personCard {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  animation: personCardEnter 420ms ease forwards;
+  animation-delay: calc(var(--stagger-index) * 80ms);
+  will-change: opacity, transform;
+}
+
+.personCard:hover {
+  transform: translateY(-2px) scale(1.01);
+}
+
+@keyframes personCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .personCard {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .personCard:hover {
+    transform: none;
+  }
+}
