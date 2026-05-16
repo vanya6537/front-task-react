@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useStore } from '@/store'
-
+import { maskNumber } from '@/utils/numbers'
 export default function PeopleList() {
   const people = useStore((state) => state.people)
 
@@ -27,7 +27,7 @@ export default function PeopleList() {
             />
             <div>
               <div className="font-bold text-gray-700">{person.name}</div>
-              <div className="text-gray-600">{person.ageInYears} years old</div>
+              <div className="text-gray-600">{maskNumber(person.ageInYears)} years old</div>
             </div>
           </Link>
         ))}
