@@ -8,11 +8,10 @@ export default function PersonEdit() {
   const updatePersonAge = useStore((state) => state.updatePersonAge)
 
   const [isFocused, setIsFocused] = useState<boolean>(false)
-  const [error,setError] = useState('')
-
+const [isHovered, setIsHovered] = useState<boolean>(false)
   const nameStyles = useMemo(
     () =>
-      `block text-sm font-bold tracking-wide pb-3 ${
+      `block text-sm font-bold pb-3 ${
         isFocused ? 'text-[#3D06D7]' : 'text-gray-700'
       }`,
     [isFocused]
@@ -26,23 +25,26 @@ export default function PersonEdit() {
     [isFocused]
   )
 
+  function handleHover() {
+    setIsHovered(true)
+  }
+
+  function handleLeaveHover(){
+    setIsHovered(false)
+  }
+  
   function handleFocus(){
     setIsFocused(true)
   }
 
   function handleBlur(){
+    handleLeaveHover()
     setIsFocused(false)
   }
 
  function maskNumber(value: string | number): string {
   console.log('Masking value:', String(value).length)
   // when String(value).length us 61 we should show error, because max number length is 61
-  if (String(value).length > 61) {
-    setError('Value is too large. Max length is 61 digits.')
-    return String(value).slice(0, 61).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-  } else {
-    setError('')
-  }
   const raw = String(value)
 
   // Remove exponential, infinity, NaN, letters, dots, spaces, etc.
@@ -82,6 +84,9 @@ function unmaskNumber(value: string): string {
   }
 
   const maskedAge = maskNumber(person.ageInHours)
+// input classname should change text color if focused more black
+// based on               className="border border-gray-300 rounded px-2 py-1 text-lg outline-none text-center focus:border-[#3D06D7] transition-all duration-200"
+
 
   return (
     <div className="flex flex-col gap-4">
@@ -109,14 +114,18 @@ function unmaskNumber(value: string): string {
                 const nextValue = unmaskNumber(e.target.value)
                 updatePersonAge(person.id, +nextValue)
               }}
+              onMouseEnter={handleHover}
+              onMouseLeave={handleLeaveHover}
               style={{
                 width: `${getInputWidth(maskedAge)}px`,
+                opacity: isFocused ? 1 : 0.3,
+                borderColor: isFocused ? '#906FEE' : isHovered? '#AA9DCE':'#CFCADF',
               }}
-              className="border border-gray-300 rounded px-2 py-1 text-lg outline-none text-center focus:border-[#3D06D7] transition-all duration-200"
+              className="border border-gray-300 color-[#1E0E4C] hover:border-[#AA9DCE]  rounded px-2 py-1 text-lg outline-none text-center focus:border-[#3D06D7] transition-all duration-200"
               placeholder="0"
             />
 
-            <span className="text-gray-600 text-lg">hours old</span>
+            <span className="text-gray-600 text-lg font-weight-light">hours old</span>
           </div>
         </div>
       </div>
