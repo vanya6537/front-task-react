@@ -21,9 +21,9 @@ export default function PeopleList() {
             className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-violet-500"
           >
             <img
-              src="/img.png"
+              src="/images/cat.png"
               alt={person.name}
-              className="w-10 h-10 rounded-full border-2 border-violet-500 object-cover"
+              className="w-22 h-22 rounded-full border border-[#3D06D7] object-cover p-1"
             />
             <div>
               <div className="font-bold text-gray-700">{person.name}</div>
