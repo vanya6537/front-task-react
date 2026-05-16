@@ -1,14 +1,36 @@
 import { Link, useParams } from 'react-router-dom'
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useStore } from '@/store'
+import { maskNumber, parseSafeNumberInput, MAX_SAFE_NUMBER } from '@/utils/numbers'
+
+const MIN_INPUT_WIDTH = 77
+const MAX_INPUT_WIDTH = 320
+const INPUT_CHAR_WIDTH = 13
+const INPUT_EXTRA_PADDING = 20
+
+
+function getInputWidth(value: string): number {
+  const calculatedWidth = value.length * INPUT_CHAR_WIDTH + INPUT_EXTRA_PADDING
+
+  return Math.min(
+    MAX_INPUT_WIDTH,
+    Math.max(MIN_INPUT_WIDTH, calculatedWidth)
+  )
+}
 
 export default function PersonEdit() {
   const { id } = useParams<{ id: string }>()
-  const person = useStore((state) => state.people.find((p) => p.id === Number(id)))
+
+  const person = useStore((state) =>
+    state.people.find((p) => p.id === Number(id))
+  )
+
   const updatePersonAge = useStore((state) => state.updatePersonAge)
 
-  const [isFocused, setIsFocused] = useState<boolean>(false)
-const [isHovered, setIsHovered] = useState<boolean>(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [error, setError] = useState('')
+
   const nameStyles = useMemo(
     () =>
       `block text-sm font-bold pb-3 ${
@@ -25,57 +47,40 @@ const [isHovered, setIsHovered] = useState<boolean>(false)
     [isFocused]
   )
 
-  function handleHover() {
-    setIsHovered(true)
-  }
-
-  function handleLeaveHover(){
-    setIsHovered(false)
-  }
-  
-  function handleFocus(){
+  function handleFocus() {
     setIsFocused(true)
   }
 
-  function handleBlur(){
-    handleLeaveHover()
+  function handleBlur() {
     setIsFocused(false)
+    setIsHovered(false)
   }
 
- function maskNumber(value: string | number): string {
-  console.log('Masking value:', String(value).length)
-  // when String(value).length us 61 we should show error, because max number length is 61
-  const raw = String(value)
-
-  // Remove exponential, infinity, NaN, letters, dots, spaces, etc.
-  // no leading zeros allowed, except for the single zero case
-  const digitsOnly = raw.replace(/^0+(?=\d)|[^\d]/g, '')
-
-  if (!digitsOnly) return '0'
-
-  return digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-}
-
-function unmaskNumber(value: string): string {
-  const digitsOnly = value.replace(/[^\d]/g, '')
-
-  return digitsOnly || '0'
-}
-
-  function getInputWidth(value: string): number {
-    const minWidth = 77
-    const charWidth = 13
-    const extraPadding = 20
-
-    return Math.max(minWidth, value.length * charWidth + extraPadding)
+  function handleMouseEnter() {
+    setIsHovered(true)
   }
 
-  // error max number length is 61 
+  function handleMouseLeave() {
+    setIsHovered(false)
+  }
+
+  function handleAgeChange(value: string) {
+    const nextValue = parseSafeNumberInput(value)
+
+    if (nextValue === null) {
+      setError(`Maximum allowed value is ${MAX_SAFE_NUMBER}`)
+      return
+    }
+
+    setError('')
+    updatePersonAge(person!.id, nextValue)
+  }
 
   if (!person) {
     return (
       <div>
         <p className="text-gray-600">Person not found</p>
+
         <Link to="/" className="text-[#3D06D7] hover:underline text-sm">
           Back to list
         </Link>
@@ -84,9 +89,14 @@ function unmaskNumber(value: string): string {
   }
 
   const maskedAge = maskNumber(person.ageInHours)
-// input classname should change text color if focused more black
-// based on               className="border border-gray-300 rounded px-2 py-1 text-lg outline-none text-center focus:border-[#3D06D7] transition-all duration-200"
 
+  const inputBorderColor = error
+    ? '#DC2626'
+    : isFocused
+      ? '#906FEE'
+      : isHovered
+        ? '#AA9DCE'
+        : '#CFCADF'
 
   return (
     <div className="flex flex-col gap-4">
@@ -110,23 +120,30 @@ function unmaskNumber(value: string): string {
               value={maskedAge}
               onFocus={handleFocus}
               onBlur={handleBlur}
-              onChange={(e) => {
-                const nextValue = unmaskNumber(e.target.value)
-                updatePersonAge(person.id, +nextValue)
-              }}
-              onMouseEnter={handleHover}
-              onMouseLeave={handleLeaveHover}
+              onChange={(event) => handleAgeChange(event.target.value)}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
               style={{
                 width: `${getInputWidth(maskedAge)}px`,
                 opacity: isFocused ? 1 : 0.3,
-                borderColor: isFocused ? '#906FEE' : isHovered? '#AA9DCE':'#CFCADF',
+                borderColor: inputBorderColor,
               }}
-              className="border border-gray-300 color-[#1E0E4C] hover:border-[#AA9DCE]  rounded px-2 py-1 text-lg outline-none text-center focus:border-[#3D06D7] transition-all duration-200"
+              className={`border rounded px-2 py-1 text-lg outline-none text-center transition-all duration-200 ${
+                isFocused ? 'text-[#1E0E4C]' : 'text-[#1E0E4C]/60'
+              }`}
               placeholder="0"
             />
 
-            <span className="text-gray-600 text-lg font-weight-light">hours old</span>
+            <span className="text-gray-600 text-lg font-light">
+              hours old
+            </span>
           </div>
+
+          {error && (
+            <p className="mt-1 text-sm text-red-600">
+              {error}
+            </p>
+          )}
         </div>
       </div>
     </div>
