@@ -21,7 +21,7 @@ export default function PeopleList() {
             key={person.id}
             to={`/person/${person.id}`}
             style={{ '--stagger-index': index } as React.CSSProperties}
-            className={`${styles.personCard} flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-violet-500`}
+            className={`${styles.personCard} min-w-[260px] flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-violet-500`}
           >
             <img
               src="/images/cat.png"
